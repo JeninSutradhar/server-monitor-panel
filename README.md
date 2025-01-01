@@ -7,9 +7,9 @@
   git clone https://github.com/JeninSutradhar/server-monitor-panel.git
   cd server-monitor-panel
   ```
-- run wiht go:
+- run with go:
   ```
   go build
   ./server-monitor
   ```
-  
+- server will start running on port 8080
