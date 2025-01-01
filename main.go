@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"server-monitor/api"
@@ -18,6 +19,39 @@ import (
 // Simple type structure with single data for templates
 type Page struct {
 	Current string `json:"current_page"`
+}
+
+// Global variable to store the latest metrics and a mutex to protect it
+var (
+	latestMetrics api.Metrics
+	metricsMutex  sync.RWMutex
+)
+
+// Function to periodically update the metrics
+func updateMetrics() {
+	ticker := time.NewTicker(time.Duration(10+randomInt(10)) * time.Second) // Update every 10-20 seconds
+	defer ticker.Stop()
+
+	for range ticker.C {
+		metrics, err := api.GetMetrics()
+		if err != nil {
+			log.Printf("Error fetching metrics for background update: %v", err)
+			continue
+		}
+
+		metricsMutex.Lock()
+		latestMetrics = metrics
+		metricsMutex.Unlock()
+
+		log.Println("Metrics updated in background.")
+	}
+}
+
+// Helper function to generate a random integer up to n
+func randomInt(n int) int {
+	// Seed the random number generator if not already done
+	// time.Now().UnixNano() can be used as a seed
+	return int(time.Now().UnixNano() % int64(n))
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
@@ -42,6 +76,10 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 func main() {
 	api.InitServices()
 	api.InitTasks()
+
+	// Start the background metrics update goroutine
+	go updateMetrics()
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		renderTemplate(w, "dashboard.html", Page{Current: "dashboard"})
@@ -50,12 +88,9 @@ func main() {
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
 	apiRouter.HandleFunc("/metrics", func(w http.ResponseWriter, r *http.Request) {
-		metrics, err := api.GetMetrics()
-		if err != nil {
-			log.Printf("Problems getting metrics: %v", err)
-			http.Error(w, "Error fetching metrics", http.StatusInternalServerError)
-			return
-		}
+		metricsMutex.RLock()
+		metrics := latestMetrics
+		metricsMutex.RUnlock()
 
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusOK)
@@ -109,13 +144,14 @@ func main() {
 		} else if r.Method == http.MethodGet {
 			services := api.ListServices()
 			w.Header().Set("Content-Type", "application/json")
-			time.Sleep(5 * time.Second) // Add a 5-second delay
-			w.WriteHeader(http.StatusOK)
-
-			if err := json.NewEncoder(w).Encode(services); err != nil {
-				log.Printf("Error encoding services JSON: %v", err)
+			encodedServices, err := json.Marshal(services)
+			if err != nil {
+				log.Printf("Error marshaling services: %v", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
+			w.WriteHeader(http.StatusOK)
+			w.Write(encodedServices)
 		} else {
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}

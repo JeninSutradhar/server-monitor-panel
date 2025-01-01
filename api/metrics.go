@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/shirou/gopsutil/v3/cpu"
@@ -244,45 +245,60 @@ func GetProcessStats() (ProcessStats, error) {
 
 // GetMetrics collects all system metrics and stores in the struct of type Metrics  ( public func or method using Camelcase!)
 func GetMetrics() (Metrics, error) {
+	start := time.Now()
+	log.Println("Starting GetMetrics")
+
 	cpu, err := GetCPUStats()
 	if err != nil {
 		return Metrics{}, fmt.Errorf("Get CPU Usage: %v", err)
 	}
+	log.Printf("CPU stats collected: %+v", cpu)
+
 	mem, err := GetMemoryStats()
 	if err != nil {
 		return Metrics{}, fmt.Errorf("Get Memory Usage: %v", err)
 	}
+	log.Printf("Memory stats collected: %+v", mem)
+
 	disk, err := GetDiskStats()
 	if err != nil {
 		return Metrics{}, fmt.Errorf("Get Disk Usage: %v", err)
 	}
+	log.Printf("Disk stats collected: %+v", disk)
+
 	net, err := GetNetworkStats()
 	if err != nil {
 		return Metrics{}, fmt.Errorf("Get Network Usage: %v", err)
 	}
+	log.Printf("Network stats collected: %+v", net)
 
 	host, err := GetHostStats()
 	if err != nil {
 		return Metrics{}, fmt.Errorf("get Host: %v", err)
 	}
+	log.Printf("Host stats collected: %+v", host)
 
 	load, err := GetLoadStats()
 	if err != nil {
 		return Metrics{}, fmt.Errorf("get Load Stats: %v", err)
 	}
+	log.Printf("Load stats collected: %+v", load)
 
 	processes, err := GetProcessStats()
-
 	if err != nil {
 		return Metrics{}, fmt.Errorf("get Process Stats %v", err)
-
 	}
+	log.Printf("Process stats collected: %d processes", len(processes.Processes))
 
 	interfaces, err := GetNetworkInterfaces()
-
 	if err != nil {
 		return Metrics{}, fmt.Errorf("get network interfaces: %v", err)
 	}
+	log.Printf("Network interfaces collected: %d interfaces", len(interfaces.Interfaces))
+
+	elapsed := time.Since(start)
+	log.Printf("GetMetrics completed in %s", elapsed)
+
 	return Metrics{
 		CPU:               cpu,
 		Memory:            mem,
