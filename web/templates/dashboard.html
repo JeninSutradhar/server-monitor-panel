@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Server Monitoring Dashboard</title>
+    <link href="/static/css/output.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+    <div class="flex h-screen">
+        <aside class="bg-gray-800 text-gray-100 w-64 px-4 py-6">
+            <nav class="mt-4">
+                <h2 class="text-lg font-bold  ">My Linux Panel</h2>
+
+                <a href="#" data-target="dashboard" onclick="renderPageContent(this)"
+                    class="block py-2 px-4 hover:bg-gray-700 rounded mt-4">Home</a>
+
+                <a href="#" data-target="firewall" onclick="renderPageContent(this)"
+                    class="block py-2 px-4 hover:bg-gray-700 rounded mt-2">Firewall</a>
+                <a href="#" data-target="settings" onclick="renderPageContent(this)"
+                    class="block py-2 px-4 hover:bg-gray-700 rounded mt-2"> Settings </a>
+                    <a href="#" data-target="firewall" onclick="renderPageContent(this)"
+                    class="block py-2 px-4 hover:bg-gray-700 rounded mt-2">Monitor</a>
+                <a href="#" data-target="settings" onclick="renderPageContent(this)"
+                    class="block py-2 px-4 hover:bg-gray-700 rounded mt-2"> Databases </a>
+                    <a href="#" data-target="firewall" onclick="renderPageContent(this)"
+                    class="block py-2 px-4 hover:bg-gray-700 rounded mt-2">Files</a>
+                <a href="#" data-target="settings" onclick="renderPageContent(this)"
+                    class="block py-2 px-4 hover:bg-gray-700 rounded mt-2"> Terminal </a>
+            </nav>
+
+
+        </aside>
+
+        <main class="flex-1 p-4">
+            <div id="content-area">
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center">
+                        <h2 class="text-xl font-semibold mb-2">CPU Usage</h2>
+                        <p class="text-gray-700" id="cpuUsage">Loading...</p>
+                    </div>
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center">
+                        <h2 class="text-xl font-semibold mb-2">Memory Usage</h2>
+                        <p class="text-gray-700" id="memoryUsage">Loading...</p>
+                    </div>
+
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center">
+                        <h2 class="text-xl font-semibold mb-2">Disk Usage</h2>
+                        <p class="text-gray-700" id="diskUsage">Loading...</p>
+                    </div>
+
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center">
+                        <h2 class="text-xl font-semibold mb-2">Network Stats</h2>
+                        <p class="text-gray-700">Sent: <span id="netSent">Loading...</span>, Received: <span
+                                id="netRecv">Loading...</span></p>
+                    </div>
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center">
+                        <h2 class="text-xl font-semibold mb-2">Load Average</h2>
+                        <p class="text-gray-700">
+                            <span id="load1">Loading...</span>,
+                            <span id="load5">Loading...</span>,
+                            <span id="load15">Loading...</span>
+                        </p>
+                    </div>
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center">
+                        <h2 class="text-xl font-semibold mb-2">Uptime</h2>
+                        <p class="text-gray-700" id="uptime">Loading...</p>
+                    </div>
+
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center col-span-3">
+                        <h2 class="text-xl font-semibold mb-2"> Processes Running</h2>
+                        <ul id="processList">
+                        </ul>
+                    </div>
+
+
+                    <div class="bg-white shadow-md p-4 rounded-lg text-center col-span-3">
+                        <h2 class="text-xl font-semibold mb-2">Interfaces Info</h2>
+
+                        <ul id="interfaceList">
+
+                        </ul>
+                    </div>
+
+
+                </div>
+
+                <div class="mt-8">
+                    <h2 class="text-xl  font-semibold mb-4">Service Management</h2>
+                    <div id="serviceDiv" class="space-y-4">
+
+
+                    </div>
+
+                </div>
+
+                <div class="mt-8">
+
+                    <h2 class="text-xl font-semibold mb-4">Task Management</h2>
+
+                    <div class="space-y-4" id="taskDiv">
+                    </div>
+
+                    <div class="bg-white shadow-md p-4 rounded-lg space-y-2">
+                        <h3 class="text-lg  font-semibold mb-2">Schedule New Task : </h3>
+                        <div class="flex">
+                            <input class="border px-2  rounded  mr-2" type="text" id="taskDesc"
+                                placeholder="Enter Description">
+                            <input type="datetime-local" class="border  px-2 rounded  mr-2" id="taskSchedule">
+                            <button class=" bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                                onclick="handleNewTask()"> Schedule</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+    </div>
+    <script src="/static/js/script.js"></script>
+</body>
+
+</html>
